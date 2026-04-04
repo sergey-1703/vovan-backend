@@ -8,4 +8,7 @@ router = APIRouter(
 
 @router.get("/hash/{value}")
 def hash_value(value: str):
-    return hash(value)
+    return {
+        "request": value,
+        "result": hash(value)
+    }
