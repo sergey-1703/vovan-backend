@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.routers.auth import auth_manager
 from app.routers.api import base_api
+from app.db.db_main import db_init
 import uvicorn
 
 app = FastAPI()
@@ -12,4 +13,5 @@ def root():
     return {"Скоро здесь будет Vovan Messenger"}
 
 if __name__ == "__main__":
+    db_init()
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
