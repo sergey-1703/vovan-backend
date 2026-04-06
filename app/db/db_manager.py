@@ -16,24 +16,29 @@ def read_sql_file(filename):
         return file.read()
 #user нельзя, ключ слово
 def create_db():
-    sql = read_sql_file('../sql_scripts/create_database.sql')
-    conn = psycopg.connect(host=HOST,
-                           dbname=NAME,
-                           user=USER,
-                           password=PASSWORD,
-                           autocommit=True)
-    cur = conn.cursor()
-    cur.execute(sql)
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        sql = read_sql_file('../sql_scripts/create_database.sql')
+        conn = psycopg.connect(host="localhost",
+                               dbname="postgres",
+                               user="postgres",
+                               password="1234",
+                               autocommit=True)
+        cur = conn.cursor()
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except psycopg.errors.DuplicateDatabase:
+        print("Database already exists")
+
+
 
 def createTables():
     sql = read_sql_file("../sql_scripts/create_all_tables.sql")
-    conn = psycopg.connect(host=HOST,
-                           dbname=NAME,
-                           user=USER,
-                           password=PASSWORD,
+    conn = psycopg.connect(host="localhost",
+                           dbname="postgres",
+                           user="postgres",
+                           password="1234",
                            autocommit=True)
     cur = conn.cursor()
 
