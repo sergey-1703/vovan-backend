@@ -9,7 +9,7 @@ def read_sql_file(filename):
         return file.read()
 #user нельзя, ключ слово
 def create_db():
-    sql = read_sql_file('create_database.sql')
+    sql = read_sql_file('../sql_scripts/create_database.sql')
     conn = psycopg.connect(host="localhost",
                            dbname="postgres",
                            user="postgres",
@@ -22,7 +22,7 @@ def create_db():
     conn.close()
 
 def createTables():
-    sql = read_sql_file("create_all_tables.sql")
+    sql = read_sql_file("../sql_scripts/create_all_tables.sql")
     conn = psycopg.connect(host="localhost",
                            dbname="postgres",
                            user="postgres",
