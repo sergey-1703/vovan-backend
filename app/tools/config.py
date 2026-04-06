@@ -11,3 +11,15 @@ def get_algorithm():
 
 def get_lifetime_of_token():
     return os.getenv("ACCESS_TOKEN_EXPIRE_HOURS")
+
+def  get_db_host():
+    return os.getenv("DB_HOST")
+
+def  get_db_name():
+    return os.getenv("DB_NAME")
+
+def  get_db_user():
+    return os.getenv("DB_USER")
+
+def get_db_password():
+    return os.getenv("DB_PASSWORD")
