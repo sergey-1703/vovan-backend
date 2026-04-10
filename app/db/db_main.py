@@ -1,9 +1,9 @@
-from app.db.db_manager import create_db, createTables
+from app.db.db_manager import create_db, createTables, add_user
 
 
 def db_init():
     create_db()
     createTables()
 
-# if __name__ == "__main__":
-#     main()
+db_init()
+add_user( "vovan", "krutoi_chel", "1234", "something")
