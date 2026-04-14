@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path="../../test_cfg_change_this_in_prod.env")
+load_dotenv(dotenv_path="../test_cfg_change_this_in_prod.env")
 
 def get_secret_key():
     return os.getenv("SECRET_KEY")
@@ -23,3 +23,9 @@ def  get_db_user():
 
 def get_db_password():
     return os.getenv("DB_PASSWORD")
+
+def get_min_password_length():
+    return int(os.getenv("MIN_PASSWORD_LENGTH"))
+
+def get_max_password_length():
+    return int(os.getenv("MAX_PASSWORD_LENGTH"))

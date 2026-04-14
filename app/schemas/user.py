@@ -1,3 +1,5 @@
+# Will be used in future
+
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
