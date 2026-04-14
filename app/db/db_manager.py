@@ -1,4 +1,5 @@
 import psycopg
+from psycopg import sql
 from pathlib import Path
 from app.tools.config import get_db_host, get_db_name, get_db_user, get_db_password
 
@@ -52,11 +53,14 @@ def add_user(login, nickname, password_hash, about):
     cur.execute("""INSERT INTO users (login, nickname, password_hash, about)
         VALUES (%s, %s, %s, %s);
         """, (login, nickname, password_hash, about))
-    return get_user_by_login(login)
+    return get_user_attribute_by_login(login, "id")
 
     conn.commit()
-def get_user_by_login(login):
-    cur.execute("""SELECT id FROM users WHERE login = %s;""", (login,))
+def get_user_attribute_by_login(login, attribute):
+    attribute = str(attribute)
+    query = sql.SQL("""SELECT {row} FROM users WHERE login = %s;""").format(
+        row=sql.Identifier(attribute))
+    cur.execute(query, (login,))
     user_id = cur.fetchone()
     if user_id is None:
         return None
@@ -65,7 +69,7 @@ def get_user_by_login(login):
 
 #user exists func from previous
 def user_exists(login):
-    if get_user_by_login(login) is None:
+    if get_user_attribute_by_login(login, "id") is None:
         return False
     else:
         return True
