@@ -2,10 +2,11 @@ import psycopg
 from pathlib import Path
 from app.tools.config import get_db_host, get_db_name, get_db_user, get_db_password
 
-HOST = "localhost"
-NAME = "postgres"
-USER = "postgres"
-PASSWORD = "1234"
+
+HOST = get_db_host()
+NAME = get_db_name()
+USER = get_db_user()
+PASSWORD = get_db_password()
 
 BASE_DIR = Path(__file__).resolve().parent
 #hey guys welcome to my minecraft letsplay
@@ -15,19 +16,23 @@ def read_sql_file(filename):
     with open(file_path, "r", encoding="utf-8") as file:
         return file.read()
 #user нельзя, ключ слово
-def create_db():
-    try:
-        sql = read_sql_file('../sql_scripts/create_database.sql')
-        conn = psycopg.connect(host=HOST,
+
+conn = psycopg.connect(host=HOST,
                                dbname=NAME,
                                user=USER,
                                password=PASSWORD,
                                autocommit=True)
-        cur = conn.cursor()
+cur = conn.cursor()
+
+
+
+def create_db():
+    try:
+        sql = read_sql_file('../sql_scripts/create_database.sql')
+
         cur.execute(sql)
         conn.commit()
-        cur.close()
-        conn.close()
+
     except psycopg.errors.DuplicateDatabase:
         print("Database already exists")
 
@@ -35,34 +40,32 @@ def create_db():
 
 def createTables():
     sql = read_sql_file("../sql_scripts/create_all_tables.sql")
-    conn = psycopg.connect(host=HOST,
-                               dbname=NAME,
-                               user=USER,
-                               password=PASSWORD,
-                               autocommit=True)
-    cur = conn.cursor()
 
     cur.execute(sql)
-
     conn.commit()
-    cur.close()
-    conn.close()
+
 
 
 
 def add_user(login, nickname, password_hash, about):
 
-    conn = psycopg.connect(host=HOST,
-                           dbname=NAME,
-                           user=USER,
-                           password=PASSWORD,
-                           autocommit=True)
-    cur = conn.cursor()
-
     cur.execute("""INSERT INTO users (login, nickname, password_hash, about)
         VALUES (%s, %s, %s, %s);
         """, (login, nickname, password_hash, about))
+    return get_user_by_login(login)
 
     conn.commit()
-    cur.close()
-    conn.close()
+def get_user_by_login(login):
+    cur.execute("""SELECT id FROM users WHERE login = %s;""", (login,))
+    user_id = cur.fetchone()
+    if user_id is None:
+        return None
+    else:
+        return user_id[0]
+
+#user exists func from previous
+def user_exists(login):
+    if get_user_by_login(login) is None:
+        return False
+    else:
+        return True
