@@ -5,8 +5,8 @@ from app.db.db_manager import add_user, get_user_attribute_by_login, user_exists
 from app.tools.config import get_max_password_length, get_min_password_length
 
 router = APIRouter(
-    prefix="/api/v1/users",
-    tags=["Пользователи"],
+    prefix="/api/v1/auth",
+    tags=["Авторизация"],
     responses={404: {"description": "Not found"}},
 )
 
