@@ -4,10 +4,10 @@ from pathlib import Path
 from app.tools.config import get_db_host, get_db_name, get_db_user, get_db_password
 
 
-HOST = get_db_host()
-NAME = get_db_name()
-USER = get_db_user()
-PASSWORD = get_db_password()
+HOST = "localhost"
+NAME = "postgres"
+USER = "postgres"
+PASSWORD = 1234
 
 BASE_DIR = Path(__file__).resolve().parent
 #hey guys welcome to my minecraft letsplay
@@ -67,9 +67,22 @@ def get_user_attribute_by_login(login, attribute):
     else:
         return user_id[0]
 
-#user exists func from previous
+
 def user_exists(login):
     if get_user_attribute_by_login(login, "id") is None:
         return False
     else:
         return True
+def get_user_attribute_list_by_login(login, attribute, size):
+    attribute = str(attribute)
+    login = f"%{login}%"
+    query = sql.SQL("""SELECT {row} FROM users WHERE login LIKE %s""").format(
+        row=sql.Identifier(attribute)
+    )
+    cur.execute(query, (login,))
+    user_id = cur.fetchmany(size)
+    user_id_2 =[]
+    for i in user_id:
+        user_id_2.append(i[0])
+    return user_id_2
+
