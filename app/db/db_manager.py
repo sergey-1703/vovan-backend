@@ -92,14 +92,30 @@ def user_exists(login):
         return False
     else:
         return True
-def get_user_attribute_list_by_login(login,  size):
 
+def get_user_attribute_list_by_login(login,  size, offset = 0):
+    #add for nickname or login
     login = f"%{login}%"
     query = sql.SQL("""SELECT id, login, nickname  FROM users WHERE login LIKE %s""")
     cur.execute(query, (login,))
+    if offset!=0:
+        cur.fetchmany(offset)
     user_id = cur.fetchmany(size)
     user_id_2 =[]
     for i in user_id:
         user_id_2.append(i)
     return user_id_2
+#def change attribute by id (for about for example)
+def change_attribute_by_id(id, attribute, new_attribute):
+    attribute = str(attribute)
 
+def is_users_empty():
+    cur.execute("""SELECT 1 FROM users LIMIT 1;""")
+    rows_count = cur.rowcount
+    return rows_count == 0
+
+def add_test_users():
+    sql = read_sql_file('../sql_scripts/generate_test_users.sql')
+
+    cur.execute(sql)
+    conn.commit()

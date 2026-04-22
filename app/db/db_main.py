@@ -1,11 +1,13 @@
 from app.db.db_manager import (create_db, createTables,
                                add_user, get_user_attribute_by_login,
-                               get_user_attribute_list_by_login, switch_to_test_env)
+                               get_user_attribute_list_by_login, switch_to_test_env,
+                               is_users_empty, add_test_users)
 
 
 def db_init():
     create_db()
     createTables()
+
 
 
 if __name__ == "__main__":
@@ -15,4 +17,5 @@ if __name__ == "__main__":
 #add_user( "vovan", "krutoi_chel", "1234", "something")
 # print(get_user_attribute_by_login("vovan", "id"))
 # print(user_exists("kozol"))
-print(get_user_attribute_list_by_login('ova', 5))
+print(get_user_attribute_list_by_login('user', 5, offset=0))
+
