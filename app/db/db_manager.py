@@ -129,3 +129,8 @@ def add_test_users():
 
         cur.execute(sql)
         conn.commit()
+
+def get_user_by_id(id):
+    query = sql.SQL("""SELECT * FROM users WHERE id = %s;""")
+    cur.execute(query, (id,))
+    return cur.fetchone()
