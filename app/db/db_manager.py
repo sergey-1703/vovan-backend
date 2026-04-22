@@ -73,16 +73,14 @@ def user_exists(login):
         return False
     else:
         return True
-def get_user_attribute_list_by_login(login, attribute, size):
-    attribute = str(attribute)
+def get_user_attribute_list_by_login(login,  size):
+
     login = f"%{login}%"
-    query = sql.SQL("""SELECT {row} FROM users WHERE login LIKE %s""").format(
-        row=sql.Identifier(attribute)
-    )
+    query = sql.SQL("""SELECT id, login, nickname  FROM users WHERE login LIKE %s""")
     cur.execute(query, (login,))
     user_id = cur.fetchmany(size)
     user_id_2 =[]
     for i in user_id:
-        user_id_2.append(i[0])
+        user_id_2.append(i)
     return user_id_2
 
