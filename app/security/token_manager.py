@@ -13,3 +13,7 @@ def create_token(user_id: int):
         "exp": datetime.utcnow() + timedelta(hours=1)
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def get_id_by_token(token: str):
+    return jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)["user_id"]
