@@ -108,6 +108,11 @@ def get_user_attribute_list_by_login(login,  size, offset = 0):
 #def change attribute by id (for about for example)
 def change_attribute_by_id(id, attribute, new_attribute):
     attribute = str(attribute)
+    query = sql.SQL("""UPDATE users SET {attribute} = %s WHERE id = %s;""").format(
+        attribute=sql.Identifier(attribute),
+    )
+    cur.execute(query, (new_attribute, id))
+    conn.commit()
 
 def is_users_empty():
     cur.execute("""SELECT 1 FROM users LIMIT 1;""")
