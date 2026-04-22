@@ -2,12 +2,26 @@ import psycopg
 from psycopg import sql
 from pathlib import Path
 from app.tools.config import get_db_host, get_db_name, get_db_user, get_db_password
+HOST = get_db_host()
+NAME = get_db_name()
+USER = get_db_user()
+PASSWORD = get_db_password()
+conn: psycopg.connection
+cur: psycopg.cursor
+#for pl:
+#"localhost"
+#"postgres"
+#"postgres"
+#1234
 
 
-HOST = "localhost"
-NAME = "postgres"
-USER = "postgres"
-PASSWORD = 1234
+def switch_to_test_env():
+    global HOST, NAME, USER, PASSWORD
+    HOST = "localhost"
+    NAME = "postgres"
+    USER = "postgres"
+    PASSWORD = 1234
+    connect()
 
 BASE_DIR = Path(__file__).resolve().parent
 #hey guys welcome to my minecraft letsplay
@@ -18,14 +32,19 @@ def read_sql_file(filename):
         return file.read()
 #user нельзя, ключ слово
 
-conn = psycopg.connect(host=HOST,
-                               dbname=NAME,
-                               user=USER,
-                               password=PASSWORD,
-                               autocommit=True)
-cur = conn.cursor()
+def connect():
+    global conn, cur
+    try:
+        conn = psycopg.connect(host=HOST,
+                                   dbname=NAME,
+                                   user=USER,
+                                   password=PASSWORD,
+                                   autocommit=True)
+        cur = conn.cursor()
+    except Exception as error:
+        print("noooo")
 
-
+connect()
 
 def create_db():
     try:

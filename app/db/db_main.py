@@ -1,11 +1,15 @@
 from app.db.db_manager import (create_db, createTables,
                                add_user, get_user_attribute_by_login,
-                               get_user_attribute_list_by_login)
+                               get_user_attribute_list_by_login, switch_to_test_env)
 
 
 def db_init():
     create_db()
     createTables()
+
+
+if __name__ == "__main__":
+    switch_to_test_env()
 
 #db_init()
 #add_user( "vovan", "krutoi_chel", "1234", "something")
