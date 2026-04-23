@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Depends
-from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
+from starlette.responses import JSONResponse
+
 from app.security.token_manager import get_id_by_token
-from app.main import oauth2_scheme
+from app.tools.config import security
+from app.db.db_manager import get_users_by_query, user_exists
 
 router = APIRouter(
     prefix="/api/v1/users",
@@ -11,10 +14,12 @@ router = APIRouter(
 
 
 @router.get("/search/{query}/{limit}/{offset}")
-def search(token: Annotated[str, Depends(oauth2_scheme)], query: str, limit: int, offset: int = 0):
-    current_user = get_id_by_token(token)
-    users = []
-    return users
+def search(query: str, limit: int, token: HTTPAuthorizationCredentials = Depends(security), offset: int = 0):
+    current_user_id = get_id_by_token(token.credentials)
+    # if not user_exists(current_user_id):
+    #     raise HTTPException(status_code=404, detail="User not found")
+    users = get_users_by_query(query, limit, current_user_id, offset)
+    return JSONResponse(status_code=200, content=users)
 
 
 @router.get("/{user_id}")
@@ -24,5 +29,5 @@ def get_user(user_id: int):
 
 
 @router.get("/me")
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: HTTPAuthorizationCredentials = Depends(security)):
     return
