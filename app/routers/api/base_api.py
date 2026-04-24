@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+import json
 
 router = APIRouter(
     prefix="/api/v1",
@@ -12,3 +13,8 @@ def hash_value(value: str):
         "request": value,
         "result": hash(value)
     }
+
+@router.get("/about")
+def get_about():
+    with open('../about.json') as f:
+        return json.load(f)
