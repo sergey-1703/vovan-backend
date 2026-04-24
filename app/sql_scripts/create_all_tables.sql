@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS chats(
 CREATE TABLE IF NOT EXISTS messages(
         id            SERIAL PRIMARY KEY,
         user_main_id INTEGER NOT NULL,
-        user_chatter_id INTEGER NOT NULL,
+        chat_id INTEGER NOT NULL,
         body VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
