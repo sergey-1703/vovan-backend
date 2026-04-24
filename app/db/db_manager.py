@@ -94,19 +94,18 @@ def user_exists(login):
         return True
 
 def get_users_by_query(login,  size, id, offset = 0):
-    #add for nickname or login
+    #change to full sql
     login = f"%{login}%"
-    query = sql.SQL("""SELECT id, login, nickname  FROM users WHERE login LIKE %s OR nickname LIKE %s""")
-    cur.execute(query, (login, login))
-    if offset!=0:
-        cur.fetchmany(offset)
-    user_id = cur.fetchmany(size)
-    user_id_2 =[]
-    for i in user_id:
-        if i[0] != id:
-            user_id_2.append(i)
+    query = sql.SQL("""SELECT id, login, nickname  FROM users 
+                       WHERE (login LIKE %s OR nickname LIKE %s) AND id != %s
+                       LIMIT %s OFFSET %s;
+                    """)
+    cur.execute(query, (login, login, id, size, offset))
 
-    return user_id_2
+    user_id = cur.fetchall()
+
+
+    return user_id
 
 #def change attribute by id (for about for example)
 def change_attribute_by_id(id, attribute, new_attribute):
@@ -134,3 +133,5 @@ def get_user_by_id(id):
     query = sql.SQL("""SELECT * FROM users WHERE id = %s;""")
     cur.execute(query, (id,))
     return cur.fetchone()
+#change get_users_by_query to full sql
+#replication master-slave
