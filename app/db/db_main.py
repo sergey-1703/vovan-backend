@@ -18,7 +18,7 @@ if __name__ == "__main__":
 #add_user( "vovan", "krutoi_chel", "1234", "something")
 # print(get_user_attribute_by_login("vovan", "id"))
 # print(user_exists("kozol"))
-#print(get_users_by_query('user', 5, 1, offset=0))
-print(get_user_by_id(1))
+print(get_users_by_query('Admin', 5, 1, offset=0))
+#print(get_user_by_id(1))
 #change_attribute_by_id(4, "about", "hey guys welcome to my minecraft letsplay")
 
