@@ -96,8 +96,8 @@ def user_exists(login):
 def get_users_by_query(login,  size, id, offset = 0):
     #add for nickname or login
     login = f"%{login}%"
-    query = sql.SQL("""SELECT id, login, nickname  FROM users WHERE login LIKE %s""")
-    cur.execute(query, (login,))
+    query = sql.SQL("""SELECT id, login, nickname  FROM users WHERE login LIKE %s OR nickname LIKE %s""")
+    cur.execute(query, (login, login))
     if offset!=0:
         cur.fetchmany(offset)
     user_id = cur.fetchmany(size)
