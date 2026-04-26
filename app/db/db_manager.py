@@ -107,7 +107,7 @@ def get_users_by_query(login,  size, id, offset = 0):
 
     return user_id
 
-#def change attribute by id (for about for example)
+
 def change_attribute_by_id(id, attribute, new_attribute):
     attribute = str(attribute)
     query = sql.SQL("""UPDATE users SET {attribute} = %s WHERE id = %s;""").format(
@@ -133,5 +133,58 @@ def get_user_by_id(id):
     query = sql.SQL("""SELECT * FROM users WHERE id = %s;""")
     cur.execute(query, (id,))
     return cur.fetchone()
-#change get_users_by_query to full sql
-#replication master-slave
+
+
+
+#1. chat_is_exists(chat_id) -> bool
+#2.track_message_and_create_chat(, sender, reciever, msg_body) -> chat_id
+#3. track_message(sender, chat_id, msg_body)
+#4. get_user_chats(user_id, limit, offset) -> list[(chat_id, receiver_nickname, last_msg)]
+#5. get_messages(user_id, chat_id, limit, offset) -> list[(sender_id, msg_body)]
+def chat_is_exists(chat_id):
+    query = sql.SQL("""SELECT 1 FROM chats WHERE id = %s;""")
+    cur.execute(query, (chat_id,))
+    if cur.rowcount == 0:
+        return False
+    else:
+        return True
+#def track_message_and_create_chat(sender, reciever, msg_body):
+def create_chat(user_main_id, user_chatter_id):
+    cur.execute("""INSERT INTO chats (user_main_id, user_chatter_id)   VALUES (%s, %s) 
+                RETURNING id;""",
+                (user_main_id, user_chatter_id))
+    return cur.fetchone()[0]
+
+def track_message(user_main_id, chat_id, message):
+    cur.execute("""INSERT INTO messages (user_main_id, chat_id, body) VALUES (%s, %s, %s) 
+                RETURNING id;""",
+                (user_main_id, chat_id, message))
+    return cur.fetchone()[0]
+def track_message_and_create_chat(sender, reciever, msg_body):
+    chat_id = (create_chat(sender, reciever))
+    track_message(sender, chat_id, msg_body)
+    return chat_id
+def get_user_chats(user_id, limit, offset = 0):
+    query = sql.SQL("""SELECT id, user_chatter_id FROM chats WHERE user_main_id = %s
+                    LIMIT %s OFFSET %s;""")
+    cur.execute(query, (user_id, limit, offset))
+    list_of_chats = cur.fetchall()
+    final_list_of_chats = []
+    for i in list_of_chats:
+        chat_id = i[0]
+        user_chatter_id = i[1]
+        user_reciever_nickname = get_user_by_id(user_chatter_id)[2]
+        last_message = get_last_message(user_id, chat_id)
+        final_list_of_chats.append([chat_id, user_reciever_nickname, last_message])
+    return final_list_of_chats
+def get_messages(user_id, chat_id, limit, offset = 0):
+    cur.execute("""SELECT user_main_id,body FROM messages WHERE user_main_id = %s AND chat_id = %s
+                ORDER BY created_at DESC
+                LIMIT %s OFFSET %s;""",
+                (user_id, chat_id, limit, offset))
+    return cur.fetchall()
+def get_last_message(user_id, chat_id):
+    last_message = get_messages(user_id, chat_id, 1)
+    if last_message == []:
+        return None
+    else: return last_message[0][1]
