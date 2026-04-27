@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users(
         nickname      VARCHAR(255) NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         about         VARCHAR(255),
+        is_banned BOOL DEFAULT False,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
