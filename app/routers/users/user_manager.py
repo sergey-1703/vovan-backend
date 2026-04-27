@@ -16,7 +16,7 @@ def search(query: str, limit: int, token: HTTPAuthorizationCredentials = Depends
     current_user_id = get_id_by_token(token.credentials)
     if not get_user_by_id(current_user_id):
          raise HTTPException(status_code=401, detail="Unauthorized")
-    return serialize_users(get_users_by_query(query, limit, offset))
+    return serialize_users(get_users_by_query(query,limit,current_user_id, offset))
 
 
 @router.get("/me")
