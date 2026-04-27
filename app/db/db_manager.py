@@ -136,11 +136,7 @@ def get_user_by_id(id):
 
 
 
-#1. chat_is_exists(chat_id) -> bool
-#2.track_message_and_create_chat(, sender, reciever, msg_body) -> chat_id
-#3. track_message(sender, chat_id, msg_body)
-#4. get_user_chats(user_id, limit, offset) -> list[(chat_id, receiver_nickname, last_msg)]
-#5. get_messages(user_id, chat_id, limit, offset) -> list[(sender_id, msg_body)]
+
 def chat_is_exists(chat_id):
     query = sql.SQL("""SELECT 1 FROM chats WHERE id = %s;""")
     cur.execute(query, (chat_id,))
@@ -148,7 +144,7 @@ def chat_is_exists(chat_id):
         return False
     else:
         return True
-#def track_message_and_create_chat(sender, reciever, msg_body):
+
 def create_chat(user_main_id, user_chatter_id):
     cur.execute("""INSERT INTO chats (user_main_id, user_chatter_id)   VALUES (%s, %s) 
                 RETURNING id;""",
@@ -160,10 +156,12 @@ def track_message(user_main_id, chat_id, message):
                 RETURNING id;""",
                 (user_main_id, chat_id, message))
     return cur.fetchone()[0]
+
 def track_message_and_create_chat(sender, reciever, msg_body):
     chat_id = (create_chat(sender, reciever))
     track_message(sender, chat_id, msg_body)
     return chat_id
+
 def get_user_chats(user_id, limit, offset = 0):
     query = sql.SQL("""SELECT id, user_chatter_id FROM chats WHERE user_main_id = %s
                     LIMIT %s OFFSET %s;""")
@@ -177,12 +175,14 @@ def get_user_chats(user_id, limit, offset = 0):
         last_message = get_last_message(user_id, chat_id)
         final_list_of_chats.append([chat_id, user_reciever_nickname, last_message])
     return final_list_of_chats
+
 def get_messages(user_id, chat_id, limit, offset = 0):
     cur.execute("""SELECT user_main_id,body FROM messages WHERE user_main_id = %s AND chat_id = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s;""",
                 (user_id, chat_id, limit, offset))
     return cur.fetchall()
+
 def get_last_message(user_id, chat_id):
     last_message = get_messages(user_id, chat_id, 1)
     if last_message == []:
