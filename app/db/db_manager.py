@@ -188,3 +188,6 @@ def get_last_message(user_id, chat_id):
     if last_message == []:
         return None
     else: return last_message[0][1]
+
+def user_is_banned(id):
+    return False
