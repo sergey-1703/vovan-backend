@@ -190,4 +190,5 @@ def get_last_message(user_id, chat_id):
     else: return last_message[0][1]
 
 def user_is_banned(id):
-    return False
+    cur.execute("""SELECT is_banned FROM users WHERE id = %s;""", (id,))
+    return cur.fetchone()[0]

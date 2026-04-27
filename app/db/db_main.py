@@ -4,7 +4,8 @@ from app.db.db_manager import (create_db, createTables,
                                is_users_empty, add_test_users,
                                change_attribute_by_id, get_user_by_id,
                                chat_is_exists, create_chat, track_message,
-                               track_message_and_create_chat, get_user_chats, get_messages)
+                               track_message_and_create_chat, get_user_chats,
+                               get_messages, user_is_banned)
 
 
 def db_init():
@@ -27,5 +28,7 @@ if __name__ == "__main__":
 #print(create_chat(1, 1))
 #track_message(1, 1, "bruh")
 #print(track_message_and_create_chat(1, 1, "asdrftrsx"))
-print(get_user_chats(1, 10))
+#print(get_user_chats(1, 10))
 #print(get_messages(1,1, 10))
+#add_test_users()
+print(user_is_banned(1))
