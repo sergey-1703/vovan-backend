@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.security.password_hash import hash_password, verify_password
 from app.security.token_manager import create_token
-from app.db.db_manager import add_user, get_user_attribute_by_login, user_exists
+from app.db.db_manager import add_user, get_user_attribute_by_login, user_exists, user_is_banned
 from app.tools.config import get_max_password_length, get_min_password_length
 
 router = APIRouter(
@@ -29,6 +29,8 @@ def login(user_login: str, password: str):
     if (not user_exists(user_login) or not
     verify_password(password, get_user_attribute_by_login(user_login, "password_hash"))):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    token = create_token(get_user_attribute_by_login(user_login, "id"))
+    user_id = get_user_attribute_by_login(user_login, "id")
+    if user_is_banned(user_id):
+        raise HTTPException(status_code=404, detail="User banned")
+    token = create_token(user_id)
     return {"access_token": token}
