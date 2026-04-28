@@ -17,7 +17,8 @@ def db_init():
 if __name__ == "__main__":
     switch_to_test_env()
 
-#db_init()
+db_init()
+#create_db()
 #add_user( "vovan", "krutoi_chel", "1234", "something")
 # print(get_user_attribute_by_login("vovan", "id"))
 # print(user_exists("kozol"))

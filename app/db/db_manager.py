@@ -18,10 +18,11 @@ cur: psycopg.cursor
 def switch_to_test_env():
     global HOST, NAME, USER, PASSWORD
     HOST = "localhost"
-    NAME = "postgres"
+    NAME = "messenger_db"
     USER = "postgres"
     PASSWORD = 1234
-    connect()
+
+
 
 BASE_DIR = Path(__file__).resolve().parent
 #hey guys welcome to my minecraft letsplay
@@ -34,24 +35,33 @@ def read_sql_file(filename):
 
 def connect():
     global conn, cur
+    try:
+        conn = psycopg.connect(host=HOST,
+                                   dbname=NAME,
+                                   user=USER,
+                                   password=PASSWORD,
+                                   autocommit=True)
+        cur = conn.cursor()
+    except Exception as error:
+        print(error)
 
-    conn = psycopg.connect(host=HOST,
-                               dbname=NAME,
-                               user=USER,
-                               password=PASSWORD,
-                               autocommit=True)
-    cur = conn.cursor()
-
-
+switch_to_test_env()
 connect()
 
+
 def create_db():
-    global conn, cur
+
     try:
         sql = read_sql_file('../sql_scripts/create_database.sql')
-
+        conn = psycopg.connect(host="localhost",
+                               dbname="postgres",
+                               user="postgres",
+                               password=1234,
+                               autocommit=True)
+        cur = conn.cursor()
         cur.execute(sql)
         conn.commit()
+        conn.close()
 
     except psycopg.errors.DuplicateDatabase:
         print("Database already exists")
