@@ -47,6 +47,7 @@ def connect():
 connect()
 
 def create_db():
+    global conn, cur
     try:
         sql = read_sql_file('../sql_scripts/create_database.sql')
 
@@ -59,6 +60,7 @@ def create_db():
 
 
 def createTables():
+    global conn, cur
     sql = read_sql_file("../sql_scripts/create_all_tables.sql")
 
     cur.execute(sql)
@@ -68,14 +70,15 @@ def createTables():
 
 
 def add_user(login, nickname, password_hash, about):
-
+    global conn, cur
     cur.execute("""INSERT INTO users (login, nickname, password_hash, about)
         VALUES (%s, %s, %s, %s);
         """, (login, nickname, password_hash, about))
     return get_user_attribute_by_login(login, "id")
 
-    conn.commit()
+
 def get_user_attribute_by_login(login, attribute):
+    global conn, cur
     attribute = str(attribute)
     query = sql.SQL("""SELECT {row} FROM users WHERE login = %s;""").format(
         row=sql.Identifier(attribute))
@@ -88,13 +91,14 @@ def get_user_attribute_by_login(login, attribute):
 
 
 def user_exists(login):
+    global conn, cur
     if get_user_attribute_by_login(login, "id") is None:
         return False
     else:
         return True
 
 def get_users_by_query(login,  size, id, offset = 0):
-    #change to full sql
+    global conn, cur
     login = f"%{login}%"
     query = sql.SQL("""SELECT id, login, nickname  FROM users 
                        WHERE (login LIKE %s OR nickname LIKE %s) AND id != %s
@@ -109,6 +113,7 @@ def get_users_by_query(login,  size, id, offset = 0):
 
 
 def change_attribute_by_id(id, attribute, new_attribute):
+    global conn, cur
     attribute = str(attribute)
     query = sql.SQL("""UPDATE users SET {attribute} = %s WHERE id = %s;""").format(
         attribute=sql.Identifier(attribute),
@@ -118,11 +123,13 @@ def change_attribute_by_id(id, attribute, new_attribute):
     conn.commit()
 
 def is_users_empty():
+    global conn, cur
     cur.execute("""SELECT 1 FROM users LIMIT 1;""")
     rows_count = cur.rowcount
     return rows_count == 0
 
 def add_test_users():
+    global conn, cur
     if is_users_empty():
         sql = read_sql_file('../sql_scripts/generate_test_users.sql')
 
@@ -130,6 +137,7 @@ def add_test_users():
         conn.commit()
 
 def get_user_by_id(id):
+    global conn, cur
     query = sql.SQL("""SELECT * FROM users WHERE id = %s;""")
     cur.execute(query, (id,))
     return cur.fetchone()
@@ -138,6 +146,7 @@ def get_user_by_id(id):
 
 
 def chat_is_exists(chat_id):
+    global conn, cur
     query = sql.SQL("""SELECT 1 FROM chats WHERE id = %s;""")
     cur.execute(query, (chat_id,))
     if cur.rowcount == 0:
@@ -146,12 +155,14 @@ def chat_is_exists(chat_id):
         return True
 
 def create_chat(user_main_id, user_chatter_id):
+    global conn, cur
     cur.execute("""INSERT INTO chats (user_main_id, user_chatter_id)   VALUES (%s, %s) 
                 RETURNING id;""",
                 (user_main_id, user_chatter_id))
     return cur.fetchone()[0]
 
 def track_message(user_main_id, chat_id, message):
+    global conn, cur
     cur.execute("""INSERT INTO messages (user_main_id, chat_id, body) VALUES (%s, %s, %s) 
                 RETURNING id;""",
                 (user_main_id, chat_id, message))
@@ -163,6 +174,7 @@ def track_message_and_create_chat(sender, reciever, msg_body):
     return chat_id
 
 def get_user_chats(user_id, limit, offset = 0):
+    global conn, cur
     query = sql.SQL("""SELECT id, user_chatter_id FROM chats WHERE user_main_id = %s
                     LIMIT %s OFFSET %s;""")
     cur.execute(query, (user_id, limit, offset))
@@ -177,6 +189,7 @@ def get_user_chats(user_id, limit, offset = 0):
     return final_list_of_chats
 
 def get_messages(user_id, chat_id, limit, offset = 0):
+    global conn, cur
     cur.execute("""SELECT user_main_id,body FROM messages WHERE user_main_id = %s AND chat_id = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s;""",
@@ -184,12 +197,14 @@ def get_messages(user_id, chat_id, limit, offset = 0):
     return cur.fetchall()
 
 def get_last_message(user_id, chat_id):
+    global conn, cur
     last_message = get_messages(user_id, chat_id, 1)
     if last_message == []:
         return None
     else: return last_message[0][1]
 
 def user_is_banned(id):
+    global conn, cur
     cur.execute("""SELECT is_banned FROM users WHERE id = %s;""", (id,))
     answer = cur.fetchone()
     if answer == None:
@@ -198,6 +213,7 @@ def user_is_banned(id):
         return answer[0]
 
 def set_is_banned(user_id, value):
+    global conn, cur
     cur.execute("""SELECT 1 FROM users WHERE id = %s;""", (user_id,))
     if cur.fetchone() != None:
         cur.execute("""SELECT 1
