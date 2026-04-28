@@ -31,6 +31,6 @@ def login(user_login: str, password: str):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     user_id = get_user_attribute_by_login(user_login, "id")
     if user_is_banned(user_id):
-        raise HTTPException(status_code=404, detail="User banned")
+        raise HTTPException(status_code=403, detail="User banned")
     token = create_token(user_id)
     return {"access_token": token}

@@ -17,7 +17,7 @@ def search(query: str, limit: int, token: HTTPAuthorizationCredentials = Depends
     if not get_user_by_id(current_user_id):
          raise HTTPException(status_code=401, detail="Unauthorized")
     if user_is_banned(current_user_id):
-        raise HTTPException(status_code=404, detail="User banned")
+        raise HTTPException(status_code=403, detail="User banned")
     return serialize_users(get_users_by_query(query,limit,current_user_id, offset))
 
 
@@ -28,7 +28,7 @@ def get_current_user(token: HTTPAuthorizationCredentials = Depends(security)):
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
     if user_is_banned(current_user_id):
-        raise HTTPException(status_code=404, detail="User banned")
+        raise HTTPException(status_code=403, detail="User banned")
     return serialize_user(user)
 
 @router.patch("/me")
@@ -40,7 +40,7 @@ def change_user_attribute(attribute: str, value: str, token: HTTPAuthorizationCr
     if attribute == "id":
         raise HTTPException(status_code=400, detail="Invalid argument")
     if user_is_banned(current_user_id):
-        raise HTTPException(status_code=404, detail="User banned")
+        raise HTTPException(status_code=403, detail="User banned")
     change_attribute_by_id(current_user_id, attribute, value)
     return serialize_user(get_user_by_id(current_user_id))
 
@@ -51,7 +51,7 @@ def get_user(user_id: int, token: HTTPAuthorizationCredentials = Depends(securit
     if not get_user_by_id(current_user_id):
         raise HTTPException(status_code=401, detail="Unauthorized")
     if user_is_banned(current_user_id):
-        raise HTTPException(status_code=404, detail="User banned")
+        raise HTTPException(status_code=403, detail="User banned")
     user = get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
