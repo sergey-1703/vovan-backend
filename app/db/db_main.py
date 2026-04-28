@@ -1,3 +1,5 @@
+from psycopg import connect
+
 from app.db.db_manager import (create_db, createTables,
                                add_user, get_user_attribute_by_login,
                                get_users_by_query, switch_to_test_env,
@@ -10,12 +12,13 @@ from app.db.db_manager import (create_db, createTables,
 
 def db_init():
     create_db()
+
     createTables()
 
 
 
-if __name__ == "__main__":
-    switch_to_test_env()
+
+
 
 db_init()
 #create_db()

@@ -6,8 +6,16 @@ HOST = get_db_host()
 NAME = get_db_name()
 USER = get_db_user()
 PASSWORD = get_db_password()
-conn: psycopg.connection
-cur: psycopg.cursor
+
+def connect():
+    global conn, cur
+    conn = psycopg.connect(host=HOST,
+                               dbname=NAME,
+                               user=USER,
+                               password=PASSWORD,
+                               autocommit=True)
+    cur = conn.cursor()
+
 #for pl:
 #"localhost"
 #"postgres"
@@ -21,6 +29,9 @@ def switch_to_test_env():
     NAME = "messenger_db"
     USER = "postgres"
     PASSWORD = 1234
+    print("Switching to test environment")
+switch_to_test_env()
+connect()
 
 
 
@@ -33,38 +44,30 @@ def read_sql_file(filename):
         return file.read()
 #user нельзя, ключ слово
 
-def connect():
-    global conn, cur
-    try:
-        conn = psycopg.connect(host=HOST,
-                                   dbname=NAME,
-                                   user=USER,
-                                   password=PASSWORD,
-                                   autocommit=True)
-        cur = conn.cursor()
-    except Exception as error:
-        print(error)
 
-switch_to_test_env()
-connect()
+
+
+
+
 
 
 def create_db():
-
+    conn = psycopg.connect(host="localhost",
+                           dbname="messenger_db",
+                           user="postgres",
+                           password=1234,
+                           autocommit=True)
+    cur = conn.cursor()
     try:
         sql = read_sql_file('../sql_scripts/create_database.sql')
-        conn = psycopg.connect(host="localhost",
-                               dbname="postgres",
-                               user="postgres",
-                               password=1234,
-                               autocommit=True)
-        cur = conn.cursor()
+
         cur.execute(sql)
         conn.commit()
-        conn.close()
+
 
     except psycopg.errors.DuplicateDatabase:
         print("Database already exists")
+    conn.close()
 
 
 
