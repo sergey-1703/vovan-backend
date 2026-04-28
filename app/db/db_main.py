@@ -5,7 +5,7 @@ from app.db.db_manager import (create_db, createTables,
                                change_attribute_by_id, get_user_by_id,
                                chat_is_exists, create_chat, track_message,
                                track_message_and_create_chat, get_user_chats,
-                               get_messages, user_is_banned, set_is_banned)
+                               get_messages, user_is_banned)
 
 
 def db_init():
@@ -32,4 +32,4 @@ if __name__ == "__main__":
 #print(get_messages(1,1, 10))
 #add_test_users()
 #print(user_is_banned(1))
-print(set_is_banned(1, False))
+#print(set_is_banned(1, False))
