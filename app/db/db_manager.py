@@ -191,4 +191,25 @@ def get_last_message(user_id, chat_id):
 
 def user_is_banned(id):
     cur.execute("""SELECT is_banned FROM users WHERE id = %s;""", (id,))
-    return cur.fetchone()[0]
+    answer = cur.fetchone()
+    if answer == None:
+        return False
+    else:
+        return answer[0]
+
+def set_is_banned(user_id, value):
+    cur.execute("""SELECT 1 FROM users WHERE id = %s;""", (user_id,))
+    if cur.fetchone() != None:
+        cur.execute("""SELECT 1
+                       FROM users
+                       WHERE id = %s AND is_banned = %s;""", (user_id, value))
+        if cur.fetchone() != None:
+            return False
+        query = sql.SQL("""UPDATE users
+                           SET is_banned = %s
+                           WHERE id = %s;""")
+        cur.execute(query, (value, user_id))
+        return True
+
+    else:
+        return False
