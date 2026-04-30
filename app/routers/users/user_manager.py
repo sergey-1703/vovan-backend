@@ -63,8 +63,7 @@ def serialize_user(user):
         "id": user[0],
         "login": user[1],
         "nickname": user[2],
-        "about": user[4],
-        "created_at": user[5]
+        "about": user[4]
     }
 
 
