@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     sql = generate_sql(users)
 
-    with open("../sql_scripts/generate_test_users.sql", "w+", encoding="utf-8") as f:
+    with open("../../sql_scripts/generate_test_users.sql", "w+", encoding="utf-8") as f:
         f.write(sql)
 
     print(f"✅ Сгенерировано пользователей: {len(users)}")

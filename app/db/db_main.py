@@ -3,7 +3,7 @@ from psycopg import connect
 from app.db.db_manager import (create_db, createTables,
                                add_user, get_user_attribute_by_login,
                                get_users_by_query, switch_to_test_env,
-                               is_users_empty, add_test_users,
+                               is_users_empty, add_test_data,
                                change_attribute_by_id, get_user_by_id,
                                chat_is_exists, create_chat, track_message,
                                track_message_and_create_chat, get_user_chats,

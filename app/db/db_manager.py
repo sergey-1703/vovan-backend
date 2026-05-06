@@ -143,11 +143,21 @@ def is_users_empty():
     rows_count = cur.rowcount
     return rows_count == 0
 
-def add_test_users():
+
+def is_messages_empty():
+    global conn, cur
+    cur.execute("""SELECT 1 FROM messages LIMIT 1;""")
+    rows_count = cur.rowcount
+    return rows_count == 0
+
+def add_test_data():
     global conn, cur
     if is_users_empty():
         sql = read_sql_file('../sql_scripts/generate_test_users.sql')
-
+        cur.execute(sql)
+        conn.commit()
+    if is_messages_empty():
+        sql = read_sql_file('../sql_scripts/generated_chats_messages.sql')
         cur.execute(sql)
         conn.commit()
 
