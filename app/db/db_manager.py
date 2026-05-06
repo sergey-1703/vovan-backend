@@ -30,8 +30,8 @@ def switch_to_test_env():
     USER = "postgres"
     PASSWORD = 1234
     print("Switching to test environment")
-switch_to_test_env()
-connect()
+
+
 
 
 
@@ -53,7 +53,7 @@ def read_sql_file(filename):
 
 def create_db():
     conn = psycopg.connect(host="localhost",
-                           dbname="messenger_db",
+                           dbname="postgres",
                            user="postgres",
                            password=1234,
                            autocommit=True)
@@ -69,6 +69,9 @@ def create_db():
         print("Database already exists")
     conn.close()
 
+#switch_to_test_env()
+create_db()
+connect()
 
 
 def createTables():
