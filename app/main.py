@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from app.security.token_manager import get_id_by_token
 from app.routers.auth import auth_manager
+from app.routers.chats import chats_manager
 from app.tools.config import security
 from app.routers.api import base_api
 from app.routers.users import user_manager
@@ -13,6 +14,7 @@ app = FastAPI()
 app.include_router(auth_manager.router)
 app.include_router(base_api.router)
 app.include_router(user_manager.router)
+app.include_router(chats_manager.router)
 
 @app.get("/")
 def root(token: HTTPAuthorizationCredentials = Depends(security)):
