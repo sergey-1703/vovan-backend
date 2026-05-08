@@ -81,6 +81,7 @@ def serialize_msg(msg):
 def serialize_chat(chat):
     return {
         "chat_id": chat[0],
-        "receiver_nickname": chat[1],
-        "last_msg": chat[2]
+        "receiver_id": chat[1],
+        "receiver_nickname": chat[2],
+        "last_msg": chat[3]
     }
