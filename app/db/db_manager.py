@@ -223,7 +223,7 @@ def get_messages_from_user_from_chat(user_id, chat_id, limit, offset = 0):
 
 def get_last_message(user_id, chat_id):
     global conn, cur
-    last_message = get_messages_from_user_from_chat(user_id, chat_id, 1)
+    last_message = get_messages(chat_id, 1)
     if last_message == []:
         return None
     else: return last_message[0][1]
