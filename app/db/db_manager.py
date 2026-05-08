@@ -239,7 +239,7 @@ def user_is_banned(id):
 
 def get_messages(chat_id, limit, offset = 0):
     global conn, cur
-    cur.execute("""SELECT user_main_id,body FROM messages WHERE chat_id = %s
+    cur.execute("""SELECT user_main_id,body, created_at FROM messages WHERE chat_id = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s;""",
                 (chat_id, limit, offset))
