@@ -252,8 +252,9 @@ def get_messages(chat_id, limit, offset = 0):
 def get_chat_by_users(user_main_id, user_chatter_id):
     global conn, cur
     cur.execute("""SELECT id FROM chats WHERE 
-            user_main_id = %s AND user_chatter_id = %s""",
-                (user_main_id, user_chatter_id))
+            (user_main_id = %s AND user_chatter_id = %s) OR 
+            (user_chatter_id = %s AND user_main_id = %s)""",
+                (user_main_id, user_chatter_id, user_main_id, user_chatter_id))
     chat_id = cur.fetchone()
     if chat_id == None:
         return None
