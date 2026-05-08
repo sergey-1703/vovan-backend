@@ -213,7 +213,7 @@ def get_user_chats(user_id, limit, offset = 0):
         final_list_of_chats.append([chat_id, user_reciever_nickname, last_message])
     return final_list_of_chats
 
-def get_messages(user_id, chat_id, limit, offset = 0):
+def get_messages_from_user_from_chat(user_id, chat_id, limit, offset = 0):
     global conn, cur
     cur.execute("""SELECT user_main_id,body FROM messages WHERE user_main_id = %s AND chat_id = %s
                 ORDER BY created_at DESC
@@ -223,7 +223,7 @@ def get_messages(user_id, chat_id, limit, offset = 0):
 
 def get_last_message(user_id, chat_id):
     global conn, cur
-    last_message = get_messages(user_id, chat_id, 1)
+    last_message = get_messages_from_user_from_chat(user_id, chat_id, 1)
     if last_message == []:
         return None
     else: return last_message[0][1]
@@ -237,3 +237,10 @@ def user_is_banned(id):
     else:
         return answer[0]
 
+def get_messages(chat_id, limit, offset = 0):
+    global conn, cur
+    cur.execute("""SELECT user_main_id,body FROM messages WHERE chat_id = %s
+                ORDER BY created_at DESC
+                LIMIT %s OFFSET %s;""",
+                (chat_id, limit, offset))
+    return cur.fetchall()
