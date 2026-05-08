@@ -207,10 +207,10 @@ def get_user_chats(user_id, limit, offset = 0):
     final_list_of_chats = []
     for i in list_of_chats:
         chat_id = i[0]
-        user_chatter_id = i[1]
-        user_reciever_nickname = get_user_by_id(user_chatter_id)[2]
+        user_receiver_id = i[1]
+        user_receiver_nickname = get_user_by_id(user_receiver_id)[2]
         last_message = get_last_message(user_id, chat_id)
-        final_list_of_chats.append([chat_id, user_reciever_nickname, last_message])
+        final_list_of_chats.append([chat_id, user_receiver_id, user_receiver_nickname, last_message])
     return final_list_of_chats
 
 def get_messages_from_user_from_chat(user_id, chat_id, limit, offset = 0):
