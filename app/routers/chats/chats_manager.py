@@ -60,8 +60,8 @@ def get_messages_in_chat(chat_id: int, limit: int, token: HTTPAuthorizationCrede
     return [serialize_msg(msg) for msg in get_messages(chat_id, limit, offset)]
 
 
-@router.get("/get_chat_id_by_users_ids/")
-def get_chat_id_by_users_ids(receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
+@router.get("/check_chat_is_exists_by_receiver_id/")
+def check_chat_is_exists_by_receiver_id(receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     if not get_user_by_id(current_user_id):
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -70,7 +70,7 @@ def get_chat_id_by_users_ids(receiver_id: int, token: HTTPAuthorizationCredentia
     chat_id = get_chat_by_users(current_user_id, receiver_id)
     if chat_id is None:
         raise HTTPException(status_code=404, detail="Chat not found")
-    return chat_id
+    return {"chat_id": chat_id}
 
 
 @router.post("/create_chat_if_not_exists/")
