@@ -16,5 +16,5 @@ def hash_value(value: str):
 
 @router.get("/about")
 def get_about():
-    with open('../about.json') as f:
+    with open('../about.json', encoding="utf-8") as f:
         return json.load(f)
