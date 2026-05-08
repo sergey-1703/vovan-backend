@@ -200,9 +200,9 @@ def track_message_and_create_chat(sender, reciever, msg_body):
 
 def get_user_chats(user_id, limit, offset = 0):
     global conn, cur
-    query = sql.SQL("""SELECT id, user_chatter_id FROM chats WHERE user_main_id = %s
+    query = sql.SQL("""SELECT id, user_chatter_id FROM chats WHERE user_main_id = %s OR user_chatter_id = %s
                     LIMIT %s OFFSET %s;""")
-    cur.execute(query, (user_id, limit, offset))
+    cur.execute(query, (user_id, user_id, limit, offset))
     list_of_chats = cur.fetchall()
     final_list_of_chats = []
     for i in list_of_chats:
@@ -239,7 +239,7 @@ def user_is_banned(id):
 
 def get_messages(chat_id, limit, offset = 0):
     global conn, cur
-    cur.execute("""SELECT user_main_id,body, created_at FROM messages WHERE chat_id = %s
+    cur.execute("""SELECT user_main_id, body, created_at FROM messages WHERE chat_id = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s;""",
                 (chat_id, limit, offset))
