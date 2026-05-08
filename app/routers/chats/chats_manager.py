@@ -47,7 +47,7 @@ def get_all_user_chats(limit: int, token: HTTPAuthorizationCredentials = Depends
         raise HTTPException(status_code=401, detail="Unauthorized")
     if user_is_banned(current_user_id):
         raise HTTPException(status_code=403, detail="User banned")
-    return get_user_chats(current_user_id, limit, offset)
+    return [serialize_chat(chat) for chat in get_user_chats(current_user_id, limit, offset)]
 
 
 @router.get("/get_messages/")
@@ -57,7 +57,7 @@ def get_all_messages_in_chat(chat_id: int, limit: int, token: HTTPAuthorizationC
         raise HTTPException(status_code=401, detail="Unauthorized")
     if user_is_banned(current_user_id):
         raise HTTPException(status_code=403, detail="User banned")
-    return get_messages(chat_id, limit, offset)
+    return [serialize_msg(msg) for msg in get_messages(chat_id, limit, offset)]
 
 
 @router.post("/create_chat_if_not_exists/")
@@ -68,3 +68,19 @@ def create_chat_if_not_exist(first_msg_text: str, receiver_id: int, token: HTTPA
     if user_is_banned(current_user_id):
         raise HTTPException(status_code=403, detail="User banned")
     return track_message_and_create_chat(current_user_id, receiver_id, first_msg_text)
+
+
+def serialize_msg(msg):
+    return {
+        "sender_id": msg[0],
+        "msg_body": msg[1],
+        "created_at": msg[2]
+    }
+
+
+def serialize_chat(chat):
+    return {
+        "chat_id": chat[0],
+        "receiver_nickname": chat[1],
+        "last_msg": chat[2]
+    }
