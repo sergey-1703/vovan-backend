@@ -1,7 +1,7 @@
 from fastapi import APIRouter, WebSocket, Depends, HTTPException, WebSocketDisconnect
 from fastapi.security import HTTPAuthorizationCredentials
 from app.db.db_manager import get_user_by_id, user_is_banned, get_user_chats, get_messages, \
-    track_message_and_create_chat, track_message
+    track_message_and_create_chat, track_message, get_chat_by_users
 from app.security.token_manager import get_id_by_token
 from app.tools.config import security
 
@@ -58,6 +58,19 @@ def get_messages_in_chat(chat_id: int, limit: int, token: HTTPAuthorizationCrede
     if user_is_banned(current_user_id):
         raise HTTPException(status_code=403, detail="User banned")
     return [serialize_msg(msg) for msg in get_messages(chat_id, limit, offset)]
+
+
+@router.get("/get_chat_id_by_users_ids/")
+def get_chat_id_by_users_ids(receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
+    current_user_id = get_id_by_token(token.credentials)
+    if not get_user_by_id(current_user_id):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if user_is_banned(current_user_id):
+        raise HTTPException(status_code=403, detail="User banned")
+    chat_id = get_chat_by_users(current_user_id, receiver_id)
+    if chat_id is None:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    return chat_id
 
 
 @router.post("/create_chat_if_not_exists/")
