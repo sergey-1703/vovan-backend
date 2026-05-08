@@ -51,7 +51,7 @@ def get_all_user_chats(limit: int, token: HTTPAuthorizationCredentials = Depends
 
 
 @router.get("/get_messages/")
-def get_all_messages_in_chat(chat_id: int, limit: int, token: HTTPAuthorizationCredentials = Depends(security), offset: int = 0):
+def get_messages_in_chat(chat_id: int, limit: int, token: HTTPAuthorizationCredentials = Depends(security), offset: int = 0):
     current_user_id = get_id_by_token(token.credentials)
     if not get_user_by_id(current_user_id):
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -61,7 +61,7 @@ def get_all_messages_in_chat(chat_id: int, limit: int, token: HTTPAuthorizationC
 
 
 @router.post("/create_chat_if_not_exists/")
-def create_chat_if_not_exist(first_msg_text: str, receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
+def create_chat_if_not_exists(first_msg_text: str, receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     if not get_user_by_id(current_user_id):
         raise HTTPException(status_code=401, detail="Unauthorized")
