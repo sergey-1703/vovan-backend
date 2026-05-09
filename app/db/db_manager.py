@@ -181,6 +181,7 @@ def chat_is_exists(chat_id):
 
 def create_chat(user_main_id, user_chatter_id):
     global conn, cur
+    reset_chat_id_sequence()
     cur.execute("""INSERT INTO chats (user_main_id, user_chatter_id)   VALUES (%s, %s) 
                 RETURNING id;""",
                 (user_main_id, user_chatter_id))
@@ -260,3 +261,14 @@ def get_chat_by_users(user_main_id, user_chatter_id):
         return None
     else:
         return chat_id[0]
+
+def reset_chat_id_sequence():
+    global conn, cur
+
+    cur.execute("""SELECT setval(
+    pg_get_serial_sequence('chats', 'id'),
+    COALESCE(MAX(id), 1))
+    FROM chats;
+    """)
+
+    conn.commit()
