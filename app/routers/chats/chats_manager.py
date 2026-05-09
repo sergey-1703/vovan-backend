@@ -80,7 +80,7 @@ def create_chat_if_not_exists(first_msg_text: str, receiver_id: int, token: HTTP
         raise HTTPException(status_code=401, detail="Unauthorized")
     if user_is_banned(current_user_id):
         raise HTTPException(status_code=403, detail="User banned")
-    return track_message_and_create_chat(current_user_id, receiver_id, first_msg_text)
+    return {"chat_id" : track_message_and_create_chat(current_user_id, receiver_id, first_msg_text)}
 
 
 def serialize_msg(msg):
