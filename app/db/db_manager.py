@@ -189,6 +189,7 @@ def create_chat(user_main_id, user_chatter_id):
 
 def track_message(user_main_id, chat_id, message):
     global conn, cur
+    reset_messages_id_sequence()
     cur.execute("""INSERT INTO messages (user_main_id, chat_id, body) VALUES (%s, %s, %s) 
                 RETURNING id;""",
                 (user_main_id, chat_id, message))
@@ -269,6 +270,17 @@ def reset_chat_id_sequence():
     pg_get_serial_sequence('chats', 'id'),
     COALESCE(MAX(id), 1))
     FROM chats;
+    """)
+
+    conn.commit()
+
+def reset_messages_id_sequence():
+    global conn, cur
+
+    cur.execute("""SELECT setval(
+    pg_get_serial_sequence('messages', 'id'),
+    COALESCE(MAX(id), 1))
+    FROM messages;
     """)
 
     conn.commit()
