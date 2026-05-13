@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS users(
         password_hash VARCHAR(255) NOT NULL,
         about         VARCHAR(255),
         is_banned BOOL DEFAULT False,
+        is_online  BOOL DEFAULT False,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -21,5 +22,6 @@ CREATE TABLE IF NOT EXISTS messages(
         user_main_id INTEGER NOT NULL,
         chat_id INTEGER NOT NULL,
         body VARCHAR(255) NOT NULL,
+        is_read BOOL DEFAULT False,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
