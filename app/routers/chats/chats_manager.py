@@ -13,14 +13,15 @@ router = APIRouter(
 active_connections = {}
 
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, chat_id: int, need_track_message: bool, token: HTTPAuthorizationCredentials = Depends(security)):
+async def websocket_endpoint(websocket: WebSocket, chat_id: int, need_track_message: bool):
     global active_connections
-    current_user_id = get_id_by_token(token.credentials)
+    token = websocket.query_params.get("token")
+    current_user_id = get_id_by_token(token)
     user = get_user_by_id(current_user_id)
     if not user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        await websocket.close(code=1008)
     if user_is_banned(current_user_id):
-        raise HTTPException(status_code=403, detail="User banned")
+        await websocket.close(code=1008)
     await websocket.accept()
     active_connections[current_user_id] = websocket
     try:
@@ -28,11 +29,14 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, need_track_mess
             data = await websocket.receive_json()
             receiver_id = data["to"]
             msg = data["message"]
+            event = {
+                "type": "new_message" if need_track_message else "new_chat",
+                "chat_id": chat_id,
+                "from": current_user_id,
+                "message": msg
+            }
             if receiver_id in active_connections:
-                await active_connections[receiver_id].send_json({
-                    "from": current_user_id,
-                    "message": msg
-                })
+                await active_connections[receiver_id].send_json(event)
             if need_track_message:
                 track_message(current_user_id, chat_id, msg)
 
