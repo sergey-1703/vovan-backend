@@ -24,6 +24,11 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, need_track_mess
         await websocket.close(code=1008)
     await websocket.accept()
     active_connections[current_user_id] = websocket
+    await broadcast({
+        "type": "status",
+        "user_id": current_user_id,
+        "online": True
+    })
     try:
         while True:
             data = await websocket.receive_json()
@@ -42,6 +47,11 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, need_track_mess
 
     except WebSocketDisconnect:
         active_connections.pop(current_user_id, None)
+        await broadcast({
+            "type": "status",
+            "user_id": current_user_id,
+            "online": False
+        })
 
 
 @router.get("/get_chats/")
@@ -85,6 +95,23 @@ def create_chat_if_not_exists(first_msg_text: str, receiver_id: int, token: HTTP
     if user_is_banned(current_user_id):
         raise HTTPException(status_code=403, detail="User banned")
     return {"chat_id" : track_message_and_create_chat(current_user_id, receiver_id, first_msg_text)}
+
+
+@router.get("/status/{user_id}")
+def get_status(user_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
+    current_user_id = get_id_by_token(token.credentials)
+    if not get_user_by_id(current_user_id):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if user_is_banned(current_user_id):
+        raise HTTPException(status_code=403, detail="User banned")
+    return {
+        "online": user_id in active_connections
+    }
+
+
+async def broadcast(data):
+    for ws in active_connections.values():
+        await ws.send_json(data)
 
 
 def serialize_msg(msg):
