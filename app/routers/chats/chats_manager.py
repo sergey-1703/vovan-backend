@@ -1,7 +1,7 @@
 from fastapi import APIRouter, WebSocket, Depends, HTTPException, WebSocketDisconnect
 from fastapi.security import HTTPAuthorizationCredentials
 from app.db.db_manager import get_user_by_id, user_is_banned, get_user_chats, get_messages, \
-    track_message_and_create_chat, track_message, get_chat_by_users, set_all_messages_is_read, set_message_is_read
+    track_message_and_create_chat, track_message, get_chat_by_users, set_all_messages_is_read, set_message_is_read, get_first_message
 from app.security.token_manager import get_id_by_token
 from app.tools.config import security
 from app.tools.extensions import check_auth
@@ -37,7 +37,7 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, need_track_mess
             msg = data["message"]
             event = {
                 "type": "new_message" if need_track_message else "new_chat",
-                "msg_id": track_message(current_user_id, chat_id, msg) if need_track_message else 1, # get_first_msg_id,
+                "msg_id": track_message(current_user_id, chat_id, msg) if need_track_message else get_first_message(chat_id),
                 "chat_id": chat_id,
                 "from": current_user_id,
                 "message": msg
