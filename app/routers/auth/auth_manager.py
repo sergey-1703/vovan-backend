@@ -3,6 +3,7 @@ from app.security.password_hash import hash_password, verify_password
 from app.security.token_manager import create_token
 from app.db.db_manager import add_user, get_user_attribute_by_login, user_exists, user_is_banned
 from app.tools.config import get_max_password_length, get_min_password_length
+from app.tools.extensions import check_user_is_banned
 
 router = APIRouter(
     prefix="/api/v1/auth",
@@ -30,7 +31,6 @@ def login(user_login: str, password: str):
     verify_password(password, get_user_attribute_by_login(user_login, "password_hash"))):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     user_id = get_user_attribute_by_login(user_login, "id")
-    if user_is_banned(user_id):
-        raise HTTPException(status_code=403, detail="User banned")
+    check_user_is_banned(user_id)
     token = create_token(user_id)
     return {"access_token": token}
