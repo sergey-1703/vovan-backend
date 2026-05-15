@@ -3,7 +3,7 @@ from pathlib import Path
 from fastapi.security import HTTPBearer
 import os
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(BASE_DIR / "test_cfg_change_this_in_prod.env")
 security = HTTPBearer()
 
