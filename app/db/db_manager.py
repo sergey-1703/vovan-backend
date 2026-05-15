@@ -284,3 +284,23 @@ def reset_messages_id_sequence():
     """)
 
     conn.commit()
+
+def set_all_messages_is_read(id):
+    global conn, cur
+
+    cur.execute("""UPDATE messages SET is_read = True WHERE chat_id = %s;""", (id,))
+    conn.commit()
+
+def set_message_is_read(id):
+    global conn, cur
+
+    cur.execute("""UPDATE messages SET is_read = True WHERE id = %s;""", (id,))
+    conn.commit()
+
+def get_first_message(id):
+    global conn, cur
+
+    cur.execute("""SELECT id FROM messages WHERE chat_id = %s 
+                ORDER BY created_at DESC
+                LIMIT 1""", (id,))
+    return cur.fetchone()[0]

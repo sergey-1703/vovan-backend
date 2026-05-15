@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS users(
         password_hash VARCHAR(255) NOT NULL,
         about         VARCHAR(255),
         is_banned BOOL DEFAULT False,
-        is_online  BOOL DEFAULT False,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
