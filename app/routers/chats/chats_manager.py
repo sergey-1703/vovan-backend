@@ -1,7 +1,7 @@
 from fastapi import APIRouter, WebSocket, Depends, HTTPException, WebSocketDisconnect
 from fastapi.security import HTTPAuthorizationCredentials
 from app.db.db_manager import get_user_by_id, user_is_banned, get_user_chats, get_messages, \
-    track_message_and_create_chat, track_message, get_chat_by_users
+    track_message_and_create_chat, track_message, get_chat_by_users, set_all_messages_is_read, set_message_is_read
 from app.security.token_manager import get_id_by_token
 from app.tools.config import security
 from app.tools.extensions import check_auth
@@ -94,19 +94,19 @@ def get_status(user_id: int, token: HTTPAuthorizationCredentials = Depends(secur
     }
 
 
-@router.put("/messages_is_read/{msg_id}")
+@router.patch("/set_messages_is_read/{msg_id}")
 def set_msg_is_read(msg_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
-    # set_msg_status
+    set_message_is_read(msg_id)
     return {"success": True}
 
 
-@router.put("/set_all_messages_is_read/{chat_id}")
+@router.patch("/set_all_messages_is_read/{chat_id}")
 def set_all_msgs_is_read(chat_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
-    # set_all_msg_status
+    set_all_messages_is_read(chat_id)
     return {"success": True}
 
 
@@ -119,7 +119,8 @@ def serialize_msg(msg):
     return {
         "sender_id": msg[0],
         "msg_body": msg[1],
-        "created_at": msg[2]
+        "created_at": msg[2],
+        "is_read": msg[3]
     }
 
 
