@@ -1,7 +1,8 @@
 from fastapi import APIRouter, WebSocket, Depends, HTTPException, WebSocketDisconnect
 from fastapi.security import HTTPAuthorizationCredentials
 from app.db.db_manager import get_user_by_id, user_is_banned, get_user_chats, get_messages, \
-    track_message_and_create_chat, track_message, get_chat_by_users, set_all_messages_is_read, set_message_is_read, get_first_message
+    track_message_and_create_chat, track_message, get_chat_by_users, set_all_messages_is_read, set_message_is_read, \
+    get_first_message
 from app.security.token_manager import get_id_by_token
 from app.tools.config import security
 from app.tools.extensions import check_auth
@@ -13,16 +14,22 @@ router = APIRouter(
 )
 active_connections = {}
 
+
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, chat_id: int, need_track_message: bool):
+async def websocket_endpoint(websocket: WebSocket):
     global active_connections
     token = websocket.query_params.get("token")
+    if not token:
+        await websocket.close(code=1008)
+        return
     current_user_id = get_id_by_token(token)
     user = get_user_by_id(current_user_id)
     if not user:
         await websocket.close(code=1008)
+        return
     if user_is_banned(current_user_id):
         await websocket.close(code=1008)
+        return
     await websocket.accept()
     active_connections[current_user_id] = websocket
     await broadcast({
@@ -34,19 +41,43 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, need_track_mess
         while True:
             data = await websocket.receive_json()
             receiver_id = data["to"]
+            chat_id = data["chat_id"]
             msg = data["message"]
+            need_track_message = data["need_track_message"]
             event = {
-                "type": "new_message" if need_track_message else "new_chat",
-                "msg_id": track_message(current_user_id, chat_id, msg) if need_track_message else get_first_message(chat_id),
+                "type": (
+                    "new_message"
+                    if need_track_message
+                    else "new_chat"
+                ),
+                "msg_id": (
+                    track_message(
+                        current_user_id,
+                        chat_id,
+                        msg
+                    )
+                    if need_track_message
+                    else get_first_message(chat_id)
+                ),
                 "chat_id": chat_id,
                 "from": current_user_id,
                 "message": msg
             }
             if receiver_id in active_connections:
-                await active_connections[receiver_id].send_json(event)
-
+                try:
+                    await active_connections[
+                        receiver_id
+                    ].send_json(event)
+                except:
+                    active_connections.pop(
+                        receiver_id,
+                        None
+                    )
     except WebSocketDisconnect:
-        active_connections.pop(current_user_id, None)
+        active_connections.pop(
+            current_user_id,
+            None
+        )
         await broadcast({
             "type": "status",
             "user_id": current_user_id,
@@ -62,7 +93,8 @@ def get_all_user_chats(limit: int, token: HTTPAuthorizationCredentials = Depends
 
 
 @router.get("/get_messages/")
-def get_messages_in_chat(chat_id: int, limit: int, token: HTTPAuthorizationCredentials = Depends(security), offset: int = 0):
+def get_messages_in_chat(chat_id: int, limit: int, token: HTTPAuthorizationCredentials = Depends(security),
+                         offset: int = 0):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
     return [serialize_msg(msg) for msg in get_messages(chat_id, limit, offset)]
@@ -79,10 +111,11 @@ def check_chat_is_exists_by_receiver_id(receiver_id: int, token: HTTPAuthorizati
 
 
 @router.post("/create_chat_if_not_exists/")
-def create_chat_if_not_exists(first_msg_text: str, receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
+def create_chat_if_not_exists(first_msg_text: str, receiver_id: int,
+                              token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
-    return {"chat_id" : track_message_and_create_chat(current_user_id, receiver_id, first_msg_text)}
+    return {"chat_id": track_message_and_create_chat(current_user_id, receiver_id, first_msg_text)}
 
 
 @router.get("/status/{user_id}")
@@ -111,8 +144,14 @@ def set_all_msgs_is_read(chat_id: int, token: HTTPAuthorizationCredentials = Dep
 
 
 async def broadcast(data):
-    for ws in active_connections.values():
-        await ws.send_json(data)
+    disconnected = []
+    for user_id, ws in active_connections.items():
+        try:
+            await ws.send_json(data)
+        except:
+            disconnected.append(user_id)
+    for user_id in disconnected:
+        active_connections.pop(user_id, None)
 
 
 def serialize_msg(msg):
