@@ -18,7 +18,10 @@ active_connections = {}
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     global active_connections
-    token = websocket.query_params.get("token")
+    token = None
+    if "sec-websocket-protocol" in websocket.headers:
+        protocols = websocket.headers["sec-websocket-protocol"]
+        token = protocols.split(",")[-1].strip()
     if not token:
         await websocket.close(code=1008)
         return
