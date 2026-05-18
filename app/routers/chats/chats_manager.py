@@ -18,13 +18,17 @@ active_connections = {}
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     global active_connections
+    print("WS START")
     protocols = websocket.headers.get(
         "sec-websocket-protocol"
     )
     if not protocols:
+        print("NO PROTOCOLS")
         await websocket.close(code=1008)
         return
+    print("PROTOCOLS:", protocols)
     protocols = [p.strip() for p in protocols.split(",")]
+    print("PARSED:", protocols)
     if len(protocols) != 2:
         await websocket.close(code=1008)
         return
@@ -35,11 +39,13 @@ async def websocket_endpoint(websocket: WebSocket):
         return
     try:
         current_user_id = get_id_by_token(token)
+        print("USER ID:", current_user_id)
     except Exception:
         print("JWT ERROR")
         await websocket.close(code=1008)
         return
     user = get_user_by_id(current_user_id)
+    print("USER:", user)
     if not user:
         await websocket.close(code=1008)
         return
@@ -49,6 +55,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept(
         subprotocol="access_token"
     )
+    print("ACCEPTED")
     active_connections[current_user_id] = websocket
     await broadcast({
         "type": "status",
