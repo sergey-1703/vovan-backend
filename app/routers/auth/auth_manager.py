@@ -44,9 +44,8 @@ def create_response(token: str):
     response.set_cookie(
         key="access_token",
         value=token,
-        httponly=True,
+        httponly=False,
         secure=False,
-        samesite="lax",
-        max_age=7776000
+        samesite="lax"
     )
     return response
