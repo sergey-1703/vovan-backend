@@ -1,3 +1,4 @@
+import base64
 from fastapi import APIRouter, WebSocket, Depends, HTTPException, WebSocketDisconnect
 from fastapi.security import HTTPAuthorizationCredentials
 from app.db.db_manager import get_user_by_id, user_is_banned, get_user_chats, get_messages, \
@@ -38,7 +39,9 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.close(code=1008)
         return
     try:
-        current_user_id = get_id_by_token(token)
+        current_user_id = get_id_by_token(base64.b64decode(
+            token
+        ).decode())
         print("USER ID:", current_user_id)
     except Exception:
         print("JWT ERROR")
