@@ -5,7 +5,6 @@ from app.security.token_manager import create_token
 from app.db.db_manager import add_user, get_user_attribute_by_login, user_exists, user_is_banned
 from app.tools.config import get_max_password_length, get_min_password_length
 from app.tools.extensions import check_user_is_banned
-from datetime import datetime, timedelta
 
 router = APIRouter(
     prefix="/api/v1/auth",
@@ -40,7 +39,6 @@ def login(user_login: str, password: str):
 
 def create_response(token: str):
     max_age_seconds = 10 * 365 * 24 * 60 * 60
-    expires_date = datetime.utcnow() + timedelta(days=3650)
     response = JSONResponse({
         "access_token": token
     })
@@ -50,7 +48,6 @@ def create_response(token: str):
         httponly=True,
         secure=False,
         samesite="lax",
-        max_age = max_age_seconds,
-        expires = expires_date
+        max_age = max_age_seconds
     )
     return response
