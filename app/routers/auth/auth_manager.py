@@ -47,6 +47,6 @@ def create_response(token: str):
         httponly=True,
         secure=False,
         samesite="lax",
-        max_age = 2147483647
+        max_age=7776000
     )
     return response
