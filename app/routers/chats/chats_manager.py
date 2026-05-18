@@ -19,46 +19,21 @@ active_connections = {}
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     global active_connections
-    print("WS START")
-    protocols = websocket.headers.get(
-        "sec-websocket-protocol"
+    token = websocket.cookies.get(
+        "access_token"
     )
-    if not protocols:
-        print("NO PROTOCOLS")
+    if not token:
         await websocket.close(code=1008)
         return
-    print("PROTOCOLS:", protocols)
-    protocols = [p.strip() for p in protocols.split(",")]
-    print("PARSED:", protocols)
-    if len(protocols) != 2:
-        await websocket.close(code=1008)
-        return
-    protocol_name = protocols[0]
-    token = protocols[1]
-    if protocol_name != "access_token":
-        await websocket.close(code=1008)
-        return
-    try:
-        current_user_id = get_id_by_token(base64.b64decode(
-            token
-        ).decode())
-        print("USER ID:", current_user_id)
-    except Exception:
-        print("JWT ERROR")
-        await websocket.close(code=1008)
-        return
+    current_user_id = get_id_by_token(token)
     user = get_user_by_id(current_user_id)
-    print("USER:", user)
     if not user:
         await websocket.close(code=1008)
         return
     if user_is_banned(current_user_id):
         await websocket.close(code=1008)
         return
-    await websocket.accept(
-        subprotocol="access_token"
-    )
-    print("ACCEPTED")
+    await websocket.accept()
     active_connections[current_user_id] = websocket
     await broadcast({
         "type": "status",

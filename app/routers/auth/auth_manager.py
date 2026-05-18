@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 from app.security.password_hash import hash_password, verify_password
 from app.security.token_manager import create_token
 from app.db.db_manager import add_user, get_user_attribute_by_login, user_exists, user_is_banned
@@ -22,7 +23,7 @@ def registration(user_login: str, nickname: str, password: str):
     hashed_password = hash_password(password)
     user_id = add_user(user_login, nickname, hashed_password, about="")
     token = create_token(user_id)
-    return {"access_token": token}
+    return create_response(token)
 
 
 @router.post("/login/", status_code=200)
@@ -33,4 +34,18 @@ def login(user_login: str, password: str):
     user_id = get_user_attribute_by_login(user_login, "id")
     check_user_is_banned(user_id)
     token = create_token(user_id)
-    return {"access_token": token}
+    return create_response(token)
+
+
+def create_response(token: str):
+    response = JSONResponse({
+        "access_token": token
+    })
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=False,
+        samesite="lax"
+    )
+    return response
