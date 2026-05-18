@@ -38,7 +38,6 @@ def login(user_login: str, password: str):
 
 
 def create_response(token: str):
-    max_age_seconds = 10 * 365 * 24 * 60 * 60
     response = JSONResponse({
         "access_token": token
     })
@@ -48,6 +47,6 @@ def create_response(token: str):
         httponly=True,
         secure=False,
         samesite="lax",
-        max_age = max_age_seconds
+        max_age = 2147483647
     )
     return response
