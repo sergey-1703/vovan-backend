@@ -1,4 +1,3 @@
-import base64
 from fastapi import APIRouter, WebSocket, Depends, HTTPException, WebSocketDisconnect
 from fastapi.security import HTTPAuthorizationCredentials
 from app.db.db_manager import get_user_by_id, user_is_banned, get_user_chats, get_messages, \
@@ -67,15 +66,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 "message": msg
             }
             if receiver_id in active_connections:
-                try:
-                    await active_connections[
-                        receiver_id
-                    ].send_json(event)
-                except:
-                    active_connections.pop(
-                        receiver_id,
-                        None
-                    )
+                await active_connections[
+                    receiver_id
+                ].send_json(event)
     except WebSocketDisconnect:
         active_connections.pop(
             current_user_id,
@@ -114,11 +107,22 @@ def check_chat_is_exists_by_receiver_id(receiver_id: int, token: HTTPAuthorizati
 
 
 @router.post("/create_chat_if_not_exists/")
-def create_chat_if_not_exists(first_msg_text: str, receiver_id: int,
+async def create_chat_if_not_exists(first_msg_text: str, receiver_id: int,
                               token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
-    return {"chat_id": track_message_and_create_chat(current_user_id, receiver_id, first_msg_text)}
+    chat_id = track_message_and_create_chat(current_user_id, receiver_id, first_msg_text)
+    if receiver_id in active_connections:
+        try:
+            await active_connections[receiver_id].send_json({
+                "type": "new_chat",
+                "chat_id": chat_id,
+                "from": current_user_id,
+                "first_msg_text": first_msg_text
+            })
+        except:
+            active_connections.pop(receiver_id, None)
+    return {"chat_id": chat_id}
 
 
 @router.get("/status/{user_id}")
@@ -131,18 +135,34 @@ def get_status(user_id: int, token: HTTPAuthorizationCredentials = Depends(secur
 
 
 @router.patch("/set_messages_is_read/{msg_id}")
-def set_msg_is_read(msg_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
+async def set_msg_is_read(msg_id: int, receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
     set_message_is_read(msg_id)
+    if receiver_id in active_connections:
+        try:
+            await active_connections[receiver_id].send_json({
+                "type": "message_is_read",
+                "message_id": msg_id
+            })
+        except:
+            active_connections.pop(receiver_id, None)
     return {"success": True}
 
 
 @router.patch("/set_all_messages_is_read/{chat_id}")
-def set_all_msgs_is_read(chat_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
+async def set_all_msgs_is_read(chat_id: int, receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
     set_all_messages_is_read(chat_id)
+    if receiver_id in active_connections:
+        try:
+            await active_connections[receiver_id].send_json({
+                "type": "messages_is_read",
+                "chat_id": chat_id
+            })
+        except:
+            active_connections.pop(receiver_id, None)
     return {"success": True}
 
 
