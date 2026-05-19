@@ -2,25 +2,28 @@ import psycopg
 from psycopg import sql
 from pathlib import Path
 from app.tools.config import get_db_host, get_db_name, get_db_user, get_db_password
+
 HOST = get_db_host()
 NAME = get_db_name()
 USER = get_db_user()
 PASSWORD = get_db_password()
 
+
 def connect():
     global conn, cur
     conn = psycopg.connect(host=HOST,
-                               dbname=NAME,
-                               user=USER,
-                               password=PASSWORD,
-                               autocommit=True)
+                           dbname=NAME,
+                           user=USER,
+                           password=PASSWORD,
+                           autocommit=True)
     cur = conn.cursor()
 
-#for pl:
-#"localhost"
-#"postgres"
-#"postgres"
-#1234
+
+# for pl:
+# "localhost"
+# "postgres"
+# "postgres"
+# 1234
 
 
 def switch_to_test_env():
@@ -32,23 +35,18 @@ def switch_to_test_env():
     print("Switching to test environment")
 
 
-
-
-
 BASE_DIR = Path(__file__).resolve().parent
-#hey guys welcome to my minecraft letsplay
-#check existance of database
+
+
+# hey guys welcome to my minecraft letsplay
+# check existance of database
 def read_sql_file(filename):
     file_path = BASE_DIR / filename
     with open(file_path, "r", encoding="utf-8") as file:
         return file.read()
-#user нельзя, ключ слово
 
 
-
-
-
-
+# user нельзя, ключ слово
 
 
 def create_db():
@@ -69,7 +67,8 @@ def create_db():
         print("Database already exists")
     conn.close()
 
-#switch_to_test_env()
+
+# switch_to_test_env()
 create_db()
 connect()
 
@@ -80,8 +79,6 @@ def createTables():
 
     cur.execute(sql)
     conn.commit()
-
-
 
 
 def add_user(login, nickname, password_hash, about):
@@ -112,7 +109,8 @@ def user_exists(login):
     else:
         return True
 
-def get_users_by_query(login,  size, id, offset = 0):
+
+def get_users_by_query(login, size, id, offset=0):
     global conn, cur
     login = f"%{login}%"
     query = sql.SQL("""SELECT id, login, nickname  FROM users 
@@ -122,7 +120,6 @@ def get_users_by_query(login,  size, id, offset = 0):
     cur.execute(query, (login, login, id, size, offset))
 
     user_id = cur.fetchall()
-
 
     return user_id
 
@@ -137,6 +134,7 @@ def change_attribute_by_id(id, attribute, new_attribute):
 
     conn.commit()
 
+
 def is_users_empty():
     global conn, cur
     cur.execute("""SELECT 1 FROM users LIMIT 1;""")
@@ -150,6 +148,7 @@ def is_messages_empty():
     rows_count = cur.rowcount
     return rows_count == 0
 
+
 def add_test_data():
     global conn, cur
     if is_users_empty():
@@ -161,13 +160,12 @@ def add_test_data():
         cur.execute(sql)
         conn.commit()
 
+
 def get_user_by_id(id):
     global conn, cur
     query = sql.SQL("""SELECT * FROM users WHERE id = %s;""")
     cur.execute(query, (id,))
     return cur.fetchone()
-
-
 
 
 def chat_is_exists(chat_id):
@@ -179,6 +177,7 @@ def chat_is_exists(chat_id):
     else:
         return True
 
+
 def create_chat(user_main_id, user_chatter_id):
     global conn, cur
     reset_chat_id_sequence()
@@ -186,6 +185,7 @@ def create_chat(user_main_id, user_chatter_id):
                 RETURNING id;""",
                 (user_main_id, user_chatter_id))
     return cur.fetchone()[0]
+
 
 def track_message(user_main_id, chat_id, message):
     global conn, cur
@@ -195,12 +195,14 @@ def track_message(user_main_id, chat_id, message):
                 (user_main_id, chat_id, message))
     return cur.fetchone()[0]
 
+
 def track_message_and_create_chat(sender, reciever, msg_body):
     chat_id = (create_chat(sender, reciever))
     track_message(sender, chat_id, msg_body)
     return chat_id
 
-def get_user_chats(user_id, limit, offset = 0):
+
+def get_user_chats(user_id, limit, offset=0):
     global conn, cur
     query = sql.SQL("""SELECT id, 
                     CASE
@@ -219,7 +221,8 @@ def get_user_chats(user_id, limit, offset = 0):
         final_list_of_chats.append([chat_id, user_receiver_id, user_receiver_nickname, last_message])
     return final_list_of_chats
 
-def get_messages_from_user_from_chat(user_id, chat_id, limit, offset = 0):
+
+def get_messages_from_user_from_chat(user_id, chat_id, limit, offset=0):
     global conn, cur
     cur.execute("""SELECT user_main_id,body FROM messages WHERE user_main_id = %s AND chat_id = %s
                 ORDER BY created_at DESC
@@ -227,12 +230,15 @@ def get_messages_from_user_from_chat(user_id, chat_id, limit, offset = 0):
                 (user_id, chat_id, limit, offset))
     return cur.fetchall()
 
+
 def get_last_message(user_id, chat_id):
     global conn, cur
     last_message = get_messages(chat_id, 1)
     if last_message == []:
         return None
-    else: return last_message[0][1]
+    else:
+        return last_message[0][1]
+
 
 def user_is_banned(id):
     global conn, cur
@@ -243,13 +249,15 @@ def user_is_banned(id):
     else:
         return answer[0]
 
-def get_messages(chat_id, limit, offset = 0):
+
+def get_messages(chat_id, limit, offset=0):
     global conn, cur
     cur.execute("""SELECT user_main_id, body, created_at, is_read FROM messages WHERE chat_id = %s
                 ORDER BY created_at DESC
                 LIMIT %s OFFSET %s;""",
                 (chat_id, limit, offset))
     return cur.fetchall()
+
 
 def get_chat_by_users(user_main_id, user_chatter_id):
     global conn, cur
@@ -263,6 +271,7 @@ def get_chat_by_users(user_main_id, user_chatter_id):
     else:
         return chat_id[0]
 
+
 def reset_chat_id_sequence():
     global conn, cur
 
@@ -273,6 +282,7 @@ def reset_chat_id_sequence():
     """)
 
     conn.commit()
+
 
 def reset_messages_id_sequence():
     global conn, cur
@@ -285,17 +295,20 @@ def reset_messages_id_sequence():
 
     conn.commit()
 
+
 def set_all_messages_is_read(id):
     global conn, cur
 
     cur.execute("""UPDATE messages SET is_read = True WHERE chat_id = %s;""", (id,))
     conn.commit()
 
+
 def set_message_is_read(id):
     global conn, cur
 
     cur.execute("""UPDATE messages SET is_read = True WHERE id = %s;""", (id,))
     conn.commit()
+
 
 def get_first_message(id):
     global conn, cur
@@ -304,3 +317,37 @@ def get_first_message(id):
                 ORDER BY created_at DESC
                 LIMIT 1""", (id,))
     return cur.fetchone()[0]
+
+
+def set_messages_read_in_chat(chat_id, current_user_id):
+    """
+    Отмечает все сообщения в чате, где получатель - current_user_id,
+    как прочитанные. Возвращает список ID отправителей, чьи сообщения были прочитаны.
+    """
+    global conn, cur
+    cur.execute("""
+        SELECT DISTINCT m.user_main_id
+        FROM messages m
+        JOIN chats c ON m.chat_id = c.id
+        WHERE m.chat_id = %s
+          AND m.is_read = False
+          AND (
+            (c.user_main_id = %s AND m.user_main_id = c.user_chatter_id) OR
+            (c.user_chatter_id = %s AND m.user_main_id = c.user_main_id)
+          )
+    """, (chat_id, current_user_id, current_user_id))
+    senders = [row[0] for row in cur.fetchall()]
+
+    cur.execute("""
+        UPDATE messages
+        SET is_read = True
+        FROM chats
+        WHERE messages.chat_id = %s
+          AND messages.is_read = False
+          AND (
+            (chats.user_main_id = %s AND messages.user_main_id = chats.user_chatter_id) OR
+            (chats.user_chatter_id = %s AND messages.user_main_id = chats.user_main_id)
+          )
+    """, (chat_id, current_user_id, current_user_id))
+    conn.commit()
+    return senders
