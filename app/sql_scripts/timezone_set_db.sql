@@ -1,0 +1,1 @@
+ALTER DATABASE messenger_db SET timezone TO 'UTC';

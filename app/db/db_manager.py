@@ -65,6 +65,10 @@ def create_db():
 
     except psycopg.errors.DuplicateDatabase:
         print("Database already exists")
+    sql = read_sql_file('../sql_scripts/timezone_set_db.sql')
+
+    cur.execute(sql)
+    conn.commit()
     conn.close()
 
 
