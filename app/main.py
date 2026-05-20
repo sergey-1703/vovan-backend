@@ -8,6 +8,7 @@ from app.tools.config import security
 from app.routers.api import base_api
 from app.routers.users import user_manager
 from app.db.db_main import db_init, add_test_data, get_user_by_id
+import platform
 import uvicorn
 
 app = FastAPI()
@@ -28,5 +29,7 @@ def root(token: HTTPAuthorizationCredentials = Depends(security)):
 
 if __name__ == "__main__":
     db_init()
-    add_test_data()
+    if platform.system() != "Linux":
+        add_test_data()
+        print("Added test data")
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
