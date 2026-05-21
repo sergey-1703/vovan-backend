@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from app.security.password_hash import hash_password, verify_password
 from app.security.token_manager import create_token
-from app.db.db_manager import add_user, get_user_attribute_by_login, user_exists, user_is_banned
+from app.db.db_manager import add_user, get_user_attribute_by_login, user_exists
 from app.tools.config import get_max_password_length, get_min_password_length
 from app.tools.extensions import check_user_is_banned
 

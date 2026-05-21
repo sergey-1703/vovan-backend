@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from app.security.token_manager import get_id_by_token
 from app.tools.config import security
-from app.db.db_manager import get_users_by_query, get_user_by_id, change_attribute_by_id
+from app.db.db_manager import get_users_by_query, get_user_by_id, change_attribute_by_id, user_exists
 from app.tools.extensions import check_auth
 
 router = APIRouter(
@@ -32,6 +32,8 @@ def change_user_attribute(attribute: str, value: str, token: HTTPAuthorizationCr
     check_auth(current_user_id)
     if attribute == "id":
         raise HTTPException(status_code=400, detail="Invalid argument")
+    if attribute == "login" and user_exists(value):
+        raise HTTPException(status_code=409, detail="User with this login already exists")
     change_attribute_by_id(current_user_id, attribute, value)
     return serialize_user(get_user_by_id(current_user_id))
 
