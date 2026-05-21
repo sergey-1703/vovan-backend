@@ -198,5 +198,6 @@ def serialize_chat(chat):
         "chat_id": chat[0],
         "receiver_id": chat[1],
         "receiver_nickname": chat[2],
-        "last_msg": chat[3]
+        "last_msg": chat[3][0],
+        "last_msg_timestamp": chat[3][1]
     }
