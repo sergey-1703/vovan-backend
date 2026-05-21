@@ -36,7 +36,9 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
-            receiver_id = data["to"], chat_id = data["chat_id"], msg = data["message"]
+            receiver_id = data["to"]
+            chat_id = data["chat_id"]
+            msg = data["message"]
             msg_id = track_message(current_user_id, chat_id, msg)
             if receiver_id in active_connections:
                 event = create_msg_event(msg_id, int(chat_id), int(current_user_id), msg)
@@ -128,7 +130,7 @@ def get_status(user_id: int, token: HTTPAuthorizationCredentials = Depends(secur
     }
 
 
-@router.patch("/set_messages_is_read/{msg_id}")
+@router.patch("/set_message_is_read/")
 def set_msg_is_read(msg_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
@@ -136,7 +138,7 @@ def set_msg_is_read(msg_id: int, token: HTTPAuthorizationCredentials = Depends(s
     return {"success": True}
 
 
-@router.patch("/set_all_messages_is_read/{chat_id}")
+@router.patch("/set_all_messages_is_read/")
 async def set_all_msgs_is_read(chat_id: int, receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
