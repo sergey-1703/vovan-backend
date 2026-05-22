@@ -2,7 +2,7 @@ from fastapi import APIRouter, WebSocket, Depends, HTTPException, WebSocketDisco
 from fastapi.security import HTTPAuthorizationCredentials
 from app.db.db_manager import get_user_by_id, user_is_banned, get_user_chats, get_messages, \
     track_message_and_create_chat, track_message, get_chat_by_users, set_message_is_read, \
-    get_first_message, set_messages_read_in_chat, set_all_messages_is_read
+    get_first_message, set_all_messages_is_read
 from app.security.token_manager import get_id_by_token
 from app.tools.config import security
 from app.tools.extensions import check_auth
@@ -68,7 +68,7 @@ def create_online_event(status: bool, user_id: int):
         "online": status
     }
 
-# Остальные эндпоинты без изменений (они уже используют Bearer token из заголовка)
+
 @router.get("/get_chats/")
 def get_all_user_chats(limit: int, token: HTTPAuthorizationCredentials = Depends(security), offset: int = 0):
     current_user_id = get_id_by_token(token.credentials)
@@ -142,7 +142,7 @@ def set_msg_is_read(msg_id: int, token: HTTPAuthorizationCredentials = Depends(s
 async def set_all_msgs_is_read(chat_id: int, receiver_id: int, token: HTTPAuthorizationCredentials = Depends(security)):
     current_user_id = get_id_by_token(token.credentials)
     check_auth(current_user_id)
-    set_all_messages_is_read(chat_id)
+    set_all_messages_is_read(chat_id, receiver_id)
     if receiver_id in active_connections:
         try:
             await active_connections[receiver_id].send_json({
