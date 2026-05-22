@@ -295,7 +295,7 @@ def reset_messages_id_sequence():
 def set_all_messages_is_read(chat_id: int, reciever_id: int):
     global conn, cur
 
-    cur.execute("""UPDATE messages SET is_read = True WHERE chat_id = %s AND user_main_id == %s;""", (chat_id, reciever_id))
+    cur.execute("""UPDATE messages SET is_read = True WHERE chat_id = %s AND user_main_id = %s;""", (chat_id, reciever_id))
     conn.commit()
 
 
