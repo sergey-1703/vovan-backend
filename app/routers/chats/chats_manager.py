@@ -36,6 +36,9 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
+            if user_is_banned(current_user_id):
+                await websocket.close(code=1008, reason="User banned")
+                return
             receiver_id = data["to"]
             chat_id = data["chat_id"]
             msg = data["message"]
