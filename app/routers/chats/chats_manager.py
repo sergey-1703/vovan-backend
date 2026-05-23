@@ -28,7 +28,7 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.close(code=1008, reason="User not found")
         return
     if user_is_banned(current_user_id):
-        await websocket.close(code=1008, reason="User banned")
+        await websocket.close(code=1016, reason="User banned")
         return
     await websocket.accept()
     active_connections[current_user_id] = websocket
@@ -37,7 +37,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             if user_is_banned(current_user_id):
-                await websocket.close(code=1008, reason="User banned")
+                await websocket.close(code=1016, reason="User banned")
                 return
             receiver_id = data["to"]
             chat_id = data["chat_id"]
