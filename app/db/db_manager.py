@@ -42,10 +42,10 @@ def read_sql_file(filename):
 
 
 def create_db():
-    conn = psycopg.connect(host="localhost",
+    conn = psycopg.connect(host=HOST,
                            dbname="postgres",
-                           user="postgres",
-                           password=1234,
+                           user=USER,
+                           password=PASSWORD,
                            autocommit=True)
     cur = conn.cursor()
     try:

@@ -4,7 +4,9 @@ from fastapi.security import HTTPBearer
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-load_dotenv(BASE_DIR / "test_cfg_change_this_in_prod.env")
+env_file = BASE_DIR / ".env"
+if env_file.exists():
+    load_dotenv()
 security = HTTPBearer()
 
 def get_secret_key():

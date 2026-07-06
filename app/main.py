@@ -29,7 +29,7 @@ def root(token: HTTPAuthorizationCredentials = Depends(security)):
 
 if __name__ == "__main__":
     db_init()
-    if platform.system() != "Linux":
-        add_test_data()
-        print("Added test data")
+    # if platform.system() != "Linux":
+    #     add_test_data()
+    #     print("Added test data")
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
